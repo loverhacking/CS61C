@@ -1,0 +1,16 @@
+Exercise 1 - Inefficiencies Everywhere
+
+1. Max Delay
+Max_Delay=CLK_to_Q_Delay+CL_Delay+Setup_Time
+         =CLK_to_Q_Delay+(Adder_Delay+Multiplication_Delay)+Setup_Time
+         =10ns+(45ns+60ns)+10ns
+         =125ns
+
+2. Min Period
+Min_Period=Max_Delay=125ns
+
+3. Max Freq
+Max_Freq
+    =1/Min_Period
+    =1/125ns
+    =8MHz

@@ -1,0 +1,32 @@
+Exercise 1:
+    1. Given the way the address was broken down, how big (in words) are the pages in this model?
+    ANS: 32 bytes or 4 words.
+    2. How many TLB Hits and Misses did we have for the randomly generated set of ten addresses? What about for Page Hits and Page Faults?
+    ANS: 5, 5, 0, 5
+    3. Did you have any Page Hits? (Why?) Can you think of a set of ten addresses that would result in a Page Hit?
+    ANS: no, no (the number of physical memory pages is 4 and is equal to the number of entrances (4) in TLB and less than the number of entrances (8) in page table)
+
+Exercise 2:
+    1. Write down your ten memory accesses that will cause ten TLB misses and ten Page Faults.
+    ANS: 00, 20, 40, 60, 80, A0, C0, E0, 00, 20
+
+Exercise 3:
+    1. Write down a parameter which if changed by itself (while all other parameters stay the same) would result in ten TLB misses but fewer than ten page faults.
+    ANS: increase the physical memory size.
+
+--- lines below are ignored by the AG ---
+
+Exercise 1 Checkoff Questions:
+    1. Explain the process by which we turn a virtual address into a physical address for the very first access
+     (emphasizing on TLB Misses and Page Faults).
+    ANS: On first access, the TLB doesn't have the mapping → TLB Miss.
+    Then, the page table is checked. If no mapping exists → Page Fault.
+    The OS loads the page from disk into memory, updates the page table (and the TLB),
+    then combines the physical page number (PPN) with the offset to get the physical address.
+    2. Why does the physical address only have 2 bits for the PPN while the virtual address has 3 bits for the VPN?
+    ANS: 2 bits for PPN means 4 pages in memory, 3 bits for VPN means 8 entrances in page table.
+
+Exercise 4 Checkoff Question:
+    1. Explain why there is a much higher percentage of TLB misses in this simulation
+    ANS: Frequent process switching → TLB entries become invalid → higher TLB miss rate
+

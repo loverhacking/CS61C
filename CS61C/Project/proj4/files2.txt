@@ -1,0 +1,2 @@
+/mnt/d/MyFile/csdiy/cs61c/CS61C/Project/proj4/.venv/lib/python3.8/site-packages/dumbpy.cpython-38-x86_64-linux-gnu.so
+/mnt/d/MyFile/csdiy/cs61c/CS61C/Project/proj4/.venv/lib/python3.8/site-packages/dumbpy-0.0.1.egg-info

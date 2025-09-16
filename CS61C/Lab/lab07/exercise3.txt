@@ -1,0 +1,75 @@
+--- not autograded ---
+
+Part 1
+    blocksize = 20, n = 100: Testing naive transpose: 0.007 milliseconds
+                             Testing transpose with blocking: 0.009 milliseconds
+    blocksize = 20, n = 1000:Testing naive transpose: 0.997 milliseconds
+                             Testing transpose with blocking: 0.739 milliseconds
+    blocksize = 20, n = 2000:Testing naive transpose: 3.488 milliseconds
+                             Testing transpose with blocking: 2.012 milliseconds
+    blocksize = 20, n = 5000:Testing naive transpose: 57.695 milliseconds
+                             Testing transpose with blocking: 23.361 milliseconds
+    blocksize = 20, n = 10000:Testing naive transpose: 195.622 milliseconds
+                              Testing transpose with blocking: 82.936 milliseconds
+
+    Checkoff Question 1: At what point does cache blocked version of transpose become faster than the non-cache blocked version?
+    ANS: The cache-blocked version of matrix transpose becomes faster than the non-cache-blocked version when the matrix size
+         n is large enough that the non-blocked version experiences significant cache misses.
+    Checkoff Question 2: Why does cache blocking require the matrix to be a certain size before it outperforms the non-cache blocked code?
+    ANS: Cache Size and Matrix Size
+            Small matrices: If the entire matrix fits into the cache, the non-cache blocked code can access all data without significant cache misses.
+            Large matrices: When the matrix exceeds the cache size, the non-blocked code suffers from cache misses.
+        Overhead of Cache Blocking
+            Cache blocking introduces additional loops and calculations for block boundaries. This includes:
+                Outer loops to iterate over blocks.
+                Boundary checks to handle matrices not multiples of the block size.
+            For small matrices, this overhead (e.g., extra instructions, branch predictions) can dominate the runtime, making blocked code slower.
+            For large matrices, the reduction in cache misses outweighs this overhead.
+        Cache Miss Penalty
+            The cost of a cache miss (accessing main memory) is high—often tens or hundreds of cycles.
+            For large matrices, non-blocked code incurs many cache misses due to poor locality, while blocked code minimizes these misses.
+            The crossover point occurs when the cache miss penalty exceeds the blocking overhead.
+
+Part 2
+    blocksize = 50, n = 10000:Testing naive transpose: 173.61 milliseconds
+                              Testing transpose with blocking: 56.307 milliseconds
+    blocksize = 100, n = 10000:Testing naive transpose: 195.168 milliseconds
+                               Testing transpose with blocking: 57.953 milliseconds
+    blocksize = 500, n = 10000:Testing naive transpose: 193.694 milliseconds
+                               Testing transpose with blocking: 67.58 milliseconds
+    blocksize = 1000, n = 10000:Testing naive transpose: 201.375 milliseconds
+                                Testing transpose with blocking: 70.836 milliseconds
+    blocksize = 5000, n = 10000:Testing naive transpose: 201.839 milliseconds
+                                Testing transpose with blocking: 186 milliseconds
+
+    Checkoff Question 3: How does performance change as blocksize increases? Why is this the case?
+    ANS:Performance vs. Blocksize
+        Very Small Blocksizes:
+            **Performance is poor**: With very small blocks, the number of blocks increases significantly, leading to high overhead from outer loop iterations and boundary checks.
+            Each block processes little data, so the cost of loop control dominates. Although each block fits easily in the cache, the poor computational efficiency outweighs the cache benefits.
+        Why: The overhead of managing many small blocks (e.g., frequent updates of loop indices and condition checks) reduces performance. Cache locality is good but not enough to compensate.
+
+        Increasing Blocksize:
+            **Performance improves**: As blocksize increases, the number of blocks decreases, reducing loop overhead.
+            Larger blocks better utilize spatial locality within the cache, as more data is accessed contiguously. The blocks are typically sized to fit in the L1 cache (e.g., for integers, a 32x32 block requires 4KB for source and destination, which fits in a 32KB L1 cache).
+        Why: The reduction in overhead and improved cache hit rates lead to faster execution. The cache can hold both the source and destination blocks, minimizing cache misses during reads and writes.
+
+        Optimal Blocksize:
+            **Performance peaks**: At an optimal blocksize, the balance between overhead and cache locality is achieved.
+            The blocks are large enough to amortize loop costs but small enough to avoid cache capacity misses.
+            For modern processors, the optimal blocksize is often around 32 to 64 for L1 cache, but it varies based on cache size and associativity.
+        Why: The cache efficiently stores the working set, and the inner loops have high throughput due to sequential access patterns.
+        Fewer cache misses occur, and CPU resources are utilized effectively.
+
+        Beyond Optimal Blocksize:
+            **Performance degrades**: When blocksize becomes too large, the blocks may exceed the cache capacity, leading to capacity misses.
+            For example, a 256x256 block of integers requires 256KB for source and destination (2 * 256 * 256 * 4 bytes = 524KB), which is larger than typical L1 caches (32-64KB) and may even exceed L2 cache sizes. This causes cache thrashing, where data is evicted before reuse.
+        Why: Large blocks cause increased cache misses because the cache cannot hold the entire block, resulting in more frequent accesses to slower memory (e.g., L2 or main memory).
+        The loss of cache locality outweighs the benefits of reduced overhead.
+
+        Why This Happens
+            Cache Hierarchy: Processors have limited cache size (L1, L2, L3). Cache blocking aims to keep working sets within these caches.
+            As blocksize grows, the working set size increases quadratically (since it's B x B), quickly surpassing cache capacities.
+            Access Patterns: In matrix transpose, the source matrix is accessed row-wise (cache-friendly), but the destination is accessed column-wise (cache-unfriendly).
+            Blocking confines the column-wise accesses to a small block, making them cache-friendly. However, if the block is too large, the column-wise accesses again become strided and cause cache misses.
+            Overhead vs. Miss Penalty: Small blocks have high loop overhead but low cache miss penalty. Large blocks have low overhead but high cache miss penalty. The optimal blocksize minimizes the sum of these costs.

@@ -1,0 +1,51 @@
+1.The register representing the variable k.
+Register: t0
+Explanation:
+    Initialized to 0 (addi t0, x0, 0).
+    Incremented in the loop (addi t0, t0, 1).
+    Used to calculate array indices (slli s3, t0, 2).
+
+2.The register representing the variable sum.
+Register: s0
+Explanation:
+    Initialized to 0 (addi s0, x0, 0).
+    Updated in the loop (add s0, s0, t2), where t2 holds fun(source[k]).
+
+3.The registers acting as pointers to the source and dest arrays.
+source Pointer: s1
+    Loaded via la s1, source (base address of source).
+dest Pointer: s2
+    Loaded via la s2, dest (base address of dest).
+4.The assembly code for the loop found in the C code.
+Loop Label: loop:
+Key Instructions:
+assembly
+loop:
+    slli s3, t0, 2          ; Calculate byte offset (k * 4)
+    add t1, s1, s3          ; t1 = &source[k]
+    lw t2, 0(t1)            ; Load source[k] into t2
+    beq t2, x0, exit        ; Exit if source[k] == 0
+    add a0, x0, t2          ; Pass source[k] as argument to fun
+    jal fun                 ; Call fun(source[k])
+    add t2, x0, a0          ; Store result in t2
+    add t3, s2, s3          ; t3 = &dest[k]
+    sw t2, 0(t3)            ; dest[k] = fun(source[k])
+    add s0, s0, t2          ; sum += fun(source[k])
+    addi t0, t0, 1          ; k++
+    jal x0, loop            ; Jump back to loop
+
+5.How the pointers are manipulated in the assembly code.
+Strategy:
+    Base addresses (s1 for source, s2 for dest) remain fixed.
+    Byte offset (s3 = k * 4) is computed for each iteration (slli s3, t0, 2).
+    Element addresses are calculated dynamically:
+        source[k]: t1 = s1 + s3
+        dest[k]: t3 = s2 + s3
+
+Key Operations:
+    Load: lw t2, 0(t1) reads source[k].
+    Store: sw t2, 0(t3) writes to dest[k].
+
+Efficiency:
+    Offset recalculation (s3 = k * 4) and address addition (s1 + s3/s2 + s3) occur per iteration.
+    Base registers (s1, s2) are preserved across the loop.

@@ -1,0 +1,61 @@
+Scenario 1
+    1. What combination of parameters is producing the hit rate you observe?
+    ANS: Because step size in bytes (8 * 4 = 32) is exactly equal to cache size in bytes.
+    2. What is our hit rate if we increase Rep Count arbitrarily?
+    ANS: 0.0.
+    Why? ANS:Cause different memory access maps to the same cache block(#0)
+    and continuously evicts the previous one. (Ping Pong Effect)
+    Since no reuse, rep count doesn't affect hit rate.
+    3. How could we modify one program parameter to increase our hit rate?
+    ANS: step size, 1(hit rate: 50%) or array size, 32(hit rate: 75%) (note: there is one element in array in this case)
+
+Scenario 2
+    1. How many memory accesses are there per iteration of the inner loop (not the one involving Rep Count)?
+    ANS: 2(one read and one write, since write through in Venus)
+    2. What is the repeating hit/miss pattern?
+    ANS: Pattern: "MHHH"
+    Why? ANS: first read is miss. Then first write is hit.
+    Step size is 8(=2 * 4) bytes, which is half block size(16 bytes).
+    So the second read/write would access to the same block, resulting 2 hits.
+    3. Keeping everything else the same, what does our hit rate approach as Rep Count goes to infinity?
+    ANS: 100%. Since cache size 256 bytes(16 * 16) is exactly equal to array size, we can have everything stored in cache
+    after the first iteration, thus get good reuse.
+
+Scenario 3
+    1. What is the hit rate of our L1 cache? Our L2 cache? Overall?
+    ANS: L1_HR = 50%, L2_HR = 0%, Overall_HR = 50%
+    2. How many accesses do we have to the L1 cache total? How many of them are misses?
+    ANS: 32 accesses to L1 cache. 16 of them are missed.
+    3. How many accesses do we have to the L2 cache total?
+    ANS: 16(=L1 missed accesses) accesses to L2 cache.
+    4. What program parameter would allow us to increase our L2 hit rate, but keep our L1 hit rate the same?
+    ANS: Increasing the Rep Count.
+    Why? ANS: After the first repetition (Rep Count = 1), all blocks of the array are loaded into L2 cache due to its size (128 bytes) matching the array size (128 bytes).
+    For subsequent repetitions, every access to the array results in an L2 hit because the blocks remain in L2 throughout the repetitions.
+    Thus, as Rep Count increases, the overall L2 hit rate approaches 100%.
+    However, the L1 cache is smaller (64 bytes) than the array, so it cannot hold all blocks simultaneously.
+    Each repetition has the same access pattern, resulting in the same L1 hit rate (50%) regardless of Rep Count.
+    5. Do our L1 and L2 hit rates decrease (-), stay the same (=), or increase (+) as we (1) increase the number of blocks in L1,
+    or (2) increase the L1 block size?
+    ANS: (1) = = (2) + =
+
+--- lines below are ignored by the AG ---
+
+Checkoff Question 1: see Scenario 1 Question 2
+Checkoff Question 2: see Scenario 1 Question 3
+Checkoff Question 3: see Scenario 2 Question 2
+Checkoff Question 4: see Scenario 2 Question 3
+Checkoff Question 5:
+Suppose we have a program that iterates through a very large array (i.e. way bigger than the size of the cache) Rep Count times.
+During each Rep, we map a different function to the elements of our array (e.g. if Rep Count = 1024, we map 1024 different functions onto each of the array elements, one per Rep).
+For reference, in this scenario, we just had one function (incrementation) and one Rep.
+
+Given the program described above, how can we restructure its array accesses to achieve a hit rate like that achieved in this scenario?
+Assume that each array element is to be modified independently of the others,
+i.e. it doesn’t matter if Rep k is applied to element arr[i+1] before Rep k is applied to element arr[i], etc.
+
+ANS: try to access **a block** of the array at a time and apply all of the **Reps** to that **block**
+so we can be completely done with it before moving on, thereby keeping that **block** hot in the cache
+and not having to circle back to it later on!
+
+Checkoff Question 6: see Scenario 3 Question 4

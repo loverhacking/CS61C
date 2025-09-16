@@ -1,0 +1,21 @@
+1.Which target is part of a rule that deletes all the compiled programs?
+Target: clean
+  Reason: The clean rule explicitly removes $(BINARIES) (which contains all compiled programs) via -rm -rf ... $(BINARIES) ....
+2.Which target is part of a rule that makes all the compiled programs?
+Target: all
+Reason: The all target depends on $(BINARIES) (which expands to vector-test bit_ops lfsr), triggering their compilation.
+3.Which compiler is currently being used?
+  Compiler: gcc
+  Reason: The CC and LD variables are explicitly set to gcc.
+4.What C standard are we currently using?
+  Standard: C99
+  Reason: The CFLAGS variable includes -std=c99.
+5.How would we reference a variable “FOO” in a makefile?
+  Syntax: $(FOO)
+  Reason: Makefile variables are referenced using $(VARIABLE_NAME) syntax (e.g., $(CC) or $(BINARIES)).
+6.What operating system does the term “Darwin” represent?
+  OS: macOS (or Mac OS X)
+  Reason: Darwin is the Unix-based core of macOS, detected here for Valgrind configuration.
+7.What line creates the lfsr program from its object files?
+  Line number: 32
+  Reason: The rule for $(LFSR_PROG) (which is lfsr) links the object files $(LFSR_OBJS) into the executable on line 32:

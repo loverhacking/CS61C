@@ -1,0 +1,46 @@
+1. Which 2 orderings perform best for these 1000-by-1000 matrices?
+ANS: jki, kji
+why? these orders maximize contiguous memory access in the inner loop:
+     jki (multMat4):
+     Inner loop over i (row index). For fixed j and k:
+        A[i + k * n] accesses a contiguous column of A (varying i).
+        C[i + j * n] accesses a contiguous column of C (varying i).
+        B[k + j * n] is fixed per inner loop, benefiting from temporal locality.
+        → Contiguous access for both A and C reduces cache misses.
+
+     kji (multMat6):
+     Inner loop over i (row index). For fixed k and j:
+        A[i + k * n] accesses a contiguous column of A.
+        C[i + j * n] accesses a contiguous column of C.
+        B[k + j * n] is fixed per inner loop.
+        → Similar to jki, this order ensures contiguous access for critical arrays.
+    Both orders leverage column-major storage by iterating through columns contiguously, thus using spatial locality,
+    minimizing cache misses and maximizing performance for large matrices
+
+2. Which 2 orderings perform the worst?
+ANS: ijk, jik
+why? These orders result in non-contiguous memory access in the inner loop, causing frequent cache misses:
+    ijk (multMat1):
+    Inner loop over k. For fixed i and j:
+        A[i + k * n] accesses a row of A (varying k), which is non-contiguous in column-major storage (strided by n).
+        B[k + j * n] accesses a column of B (contiguous), but this does not compensate for the poor access pattern of A.
+        → Non-contiguous access to A dominates, causing many cache misses.
+    jik (multMat3):
+    Inner loop over k. For fixed j and i:
+    Same issues as ijk:
+        A[i + k * n] non-contiguous (row access).
+        B[k + j * n] contiguous (column access).
+        → Again, non-contiguous access to A leads to excessive cache misses.
+    Both orders violate the storage order by iterating through rows in the inner loop,
+    resulting in strided memory access and poor cache utilization.
+
+
+--- lines below are ignored by the AG ---
+
+Checkoff Question 1: see Question 1 why
+Checkoff Question 2: see Question 2 why
+Checkoff Question 3: How does the way we stride through the matrices with respect to the innermost loop affect performance?
+ANS: Based on the analysis of loop orders and memory access patterns for column-major matrix storage,
+the performance of matrix multiplication is heavily influenced by cache locality.
+The key insight is that contiguous memory access in the innermost loop minimizes cache misses,
+while strided access causes frequent cache misses.

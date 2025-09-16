@@ -1,0 +1,25 @@
+Exercise 2 - Pipe that Line
+1.
+Max_Delay=max(CLK_to_Q_Delay+Adder_Delay+Setup_Time,
+                CLK_to_Q_Delay+multiplication_Delay+Setup_Time)
+         =max(10ns+45ns+10ns,10ns+60ns+10ns)
+         =80ns
+
+2.
+Min_Period=Max_Delay=80ns
+Max_Freq
+    =1/Min_Period
+    =1/80ns
+    =12.5MHz
+
+3.
+Q.why we don’t need any “bubbles” for our pipelined circuit?
+A.A pipeline bubble is needed when a stage depends on the result of a previous stage that is not yet available.
+    In this circuit:
+        The multiplication stage uses only the external inputs — it does not depend on the state.
+        The addition stage uses:
+            The product from the multiplication stage (computed in the previous cycle)
+            The state from the previous addition stage (stored in a register)
+        Since both values are available at the start of the addition stage, no waiting is required.
+
+

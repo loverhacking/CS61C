@@ -1,0 +1,29 @@
+1.What do the .data, .word, .text directives mean (i.e. what do you use them for)? 
+.data: This directive marks the start of the data segment in memory. It is used to define global/static variables that are initialized with values (e.g., n: .word 9). The data segment is part of the program's static memory.
+
+.word: This directive allocates 32-bit (4-byte) words in memory. It initializes each word with the specified integer value(s). For example, .word 2, 4, 6, 8 stores four consecutive words with these values.
+
+.text: This directive marks the start of the text segment (code segment). It contains the executable instructions of the program (e.g., main:, fib:). The text segment is read-only and resides in a separate section of memory.
+
+2.Run the program to completion. What number did the program output? What does this number represent?
+The program outputs 34.
+
+This number represents the 9th Fibonacci number in the 0-indexed Fibonacci sequence
+
+3.At what address is n stored in memory? 
+n is stored at address 0x10000010.
+Reasoning:
+
+The .data segment starts at 0x10000000 by default in RISC-V simulators (like RARS).
+
+.word 2, 4, 6, 8 occupies 16 bytes (4 words × 4 bytes/word → addresses 0x10000000 to 0x1000000F).
+
+n: .word 9 is the next word, so it resides at 0x10000010.
+
+
+4.Without actually editing the code (i.e. without going into the “Editor” tab), have the program calculate the 13th fib number (0-indexed) by manually modifying the value of a register. 
+Run the program until the instruction after lw t3, 0(t3) (so t3 = 9).
+
+Manually set t3 = 13 (hex: 0xD) in the register pane.
+
+Resume execution. The program will compute F(13)=233 and output 233.

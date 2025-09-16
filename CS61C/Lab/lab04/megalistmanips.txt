@@ -1,0 +1,30 @@
+1. line 69  add t1, s0, x0
+fix: lw t1, 0(s0)
+reason: should read 4 bytes from memory address s0, instead of
+copying value in register s0.
+
+2. line 72  add t1, t1, t0
+fix:
+    slli t3, t0, 2
+    add t1, t1, t3
+    lw a0, 0(t1)
+reason: t0 is an element index (0,1,2,...),
+but it is not multiplied by 4 (the integer occupies 4 bytes),
+resulting in an error in the address calculation
+
+3. line 82  la a0, 8(s0)
+fix: lw a0, 8(s0)
+reason: What is loaded is the "address of the next pointer field" (i.e., s0+8),
+not the address of the next node.
+
+4. line 83  lw a1, 0(s1)
+fix: mv a1, s1
+reason: s1 stores the function address,
+but lw a1,0 (s1) mistakenly loads the first instruction of the function
+instead of the function address.
+
+5. line 76 jalr s1
+fix: store t1, t2 before calling f
+reason: t1 (array base) and t2 (array size) are temporary registers,
+but the mystery function may use t1 and t2, which destroys their values,
+causing errors in subsequent loops.
